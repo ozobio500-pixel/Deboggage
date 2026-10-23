@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Clubs points</title>
+</head>
+<body>
+    <h1>Points per club</h1>
+    <table>
+        <thead>
+            <tr><th>Club</th><th>Points</th></tr>
+        </thead>
+        <tbody>
+            {% for club in clubs %}
+            <tr><td>{{ club['name'] }}</td><td>{{ club['points'] }}</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="{{ url_for('index') }}">Back</a>
+</body>
+</html>
