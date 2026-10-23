@@ -1,36 +1,61 @@
-<html lang="en">
+<!DOCTYPE html>
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Summary | GUDLFT Registration</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 720px; margin: 2rem auto; padding: 0 1rem; color: #222; }
+        header { display: flex; justify-content: space-between; align-items: center; }
+        .points { background: #eef4ff; border-left: 4px solid #2f6fed; padding: .6rem 1rem; margin: 1rem 0; font-weight: bold; }
+        .flash { padding: .6rem 1rem; margin: .5rem 0; border-radius: 4px; }
+        .flash.success { background: #e6f6ea; color: #1b6b32; }
+        .flash.error { background: #fdeaea; color: #a12828; }
+        .card { border: 1px solid #ddd; border-radius: 6px; padding: .8rem 1rem; margin-bottom: .8rem; line-height: 1.6; }
+        .card.past { opacity: .6; }
+        .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: .8rem; color: #fff; margin-left: .4rem; }
+        .badge.past { background: #888; }
+        .badge.full { background: #c0392b; }
+        .badge.open { background: #27ae60; }
+        a.book { display: inline-block; margin-top: .3rem; padding: .3rem .8rem; background: #2f6fed; color: #fff; border-radius: 4px; text-decoration: none; }
+    </style>
 </head>
 <body>
-        <h2>Welcome, {{club['email']}} </h2><a href="{{url_for('logout')}}">Logout</a>
-
-    {% with messages = get_flashed_messages()%}
-    {% if messages %}
-        <ul>
-       {% for message in messages %}
-            <li>{{message}}</li>
+    <header>
+        <h2>Welcome, {{ club['email'] }}</h2>
+        <a href="{{ url_for('logout') }}">Logout</a>
+    </header>
+ 
+    {% with messages = get_flashed_messages() %}
+        {% for message in messages %}
+            <div class="flash {% if message.startswith('Great') %}success{% else %}error{% endif %}">{{ message }}</div>
         {% endfor %}
-       </ul>
-    {% endif%}
-    Points available: {{club['points']}}
+    {% endwith %}
+ 
+    <div class="points">Points available: {{ club['points'] }}</div>
+ 
     <h3>Competitions:</h3>
-    <ul>
-        {% for comp in competitions%}
-        <li>
-            {{comp['name']}}<br />
-            Date: {{comp['date']}}</br>
-            Number of Places: {{comp['numberOfPlaces']}}
-            {%if comp['numberOfPlaces']|int >0%}
-            <a href="{{ url_for('book',competition=comp['name'],club=club['name']) }}">Book Places</a>
-            {%endif%}
-        </li>
-        <hr />
-        {% endfor %}
-    </ul>
-    {%endwith%}
-<a href="{{ url_for('points') }}">Points des clubs</a><a href="{{ url_for('points') }}">Points des clubs</a>
+    {% for comp in competitions %}
+    <div class="card{% if comp['past'] %} past{% endif %}">
+        <strong>{{ comp['name'] }}</strong>
+        {% if comp['past'] %}
+            <span class="badge past">Terminé</span>
+        {% elif comp['numberOfPlaces']|int <= 0 %}
+            <span class="badge full">Complet</span>
+        {% else %}
+            <span class="badge open">Ouvert</span>
+        {% endif %}
+        <br>
+        Date: {{ comp['date'] }}<br>
+        Number of Places: {{ comp['numberOfPlaces'] }}
+        {% if not comp['past'] and comp['numberOfPlaces']|int > 0 %}
+        <br>
+        <a class="book" href="{{ url_for('book', competition=comp['name'], club=club['name']) }}">Book Places</a>
+        {% endif %}
+    </div>
+    {% endfor %}
+ 
+    <a href="{{ url_for('points') }}">Points des clubs</a>
 </body>
 </html>
+ 
