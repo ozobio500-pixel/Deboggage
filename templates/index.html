@@ -4,7 +4,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GUDLFT Registration</title>
 </head>
-<body>code templates\index.html
+<body>
+    {% with messages = get_flashed_messages() %}
+        {% for message in messages|unique %}
+            <div style="background:#fdeaea; color:#a12828; padding:.6rem 1rem; margin:.5rem 0; border-radius:4px;">{{ message }}</div>
+        {% endfor %}
+    {% endwith %}
     <h1>Welcome to the GUDLFT Registration Portal!</h1>
     Please enter your secretary email to continue:
     <form action="showSummary" method="post">
