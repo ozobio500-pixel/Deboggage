@@ -40,17 +40,11 @@ def find_competition(name):
 
 
 def is_past(competition):
-    date = datetime.strptime(competition['date'], DATE_FORMAT)
-    return date < datetime.now()
+    return datetime.strptime(competition['date'], DATE_FORMAT) < datetime.now()
 
 
 def render_welcome(club):
-    competitionsWithStatus = [dict(c, past=is_past(c)) for c in competitions]
-    return render_template(
-        'welcome.html',
-        club=club,
-        competitions=competitionsWithStatus
-    )
+    return render_template('welcome.html', club=club, competitions=competitions)
 
 
 @app.route('/')
@@ -82,11 +76,7 @@ def book(competition, club):
         flash("You cannot book places for a past competition.")
         return render_welcome(foundClub)
 
-    return render_template(
-        'booking.html',
-        club=foundClub,
-        competition=foundCompetition
-    )
+    return render_template('booking.html', club=foundClub, competition=foundCompetition)
 
 
 @app.route('/purchasePlaces', methods=['POST'])
@@ -113,28 +103,23 @@ def purchasePlaces():
         flash("You cannot book places for a past competition.")
         return render_welcome(club)
 
-    bookingKey = (competition['name'], club['name'])
-    alreadyBooked = bookings.get(bookingKey, 0)
+    alreadyBooked = bookings.get((competition['name'], club['name']), 0)
     if alreadyBooked + placesRequired > MAX_PLACES_PER_COMPETITION:
-        flash(
-            f"You cannot book more than {MAX_PLACES_PER_COMPETITION} "
-            "places per competition."
-        )
+        flash(f"You cannot book more than {MAX_PLACES_PER_COMPETITION} places per competition.")
         return render_welcome(club)
 
     if placesRequired > int(club['points']):
         flash("You do not have enough points.")
         return render_welcome(club)
 
-    availablePlaces = int(competition['numberOfPlaces'])
-    if placesRequired > availablePlaces:
+    if placesRequired > int(competition['numberOfPlaces']):
         flash("Not enough places available in this competition.")
         return render_welcome(club)
 
     # Réservation valide : on met à jour places, points et compteur
-    competition['numberOfPlaces'] = availablePlaces - placesRequired
+    competition['numberOfPlaces'] = int(competition['numberOfPlaces']) - placesRequired
     club['points'] = int(club['points']) - placesRequired
-    bookings[bookingKey] = alreadyBooked + placesRequired
+    bookings[(competition['name'], club['name'])] = alreadyBooked + placesRequired
 
     flash('Great-booking complete!')
     return render_welcome(club)
@@ -148,3 +133,4 @@ def points():
 @app.route('/logout')
 def logout():
     return redirect(url_for('index'))
+
